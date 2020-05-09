@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class TasklistController extends Controller
 {
+
+    protected $tasklist;
+
+    public function __construct(Tasklist $tasklist)
+    {
+        $this->tasklist = $tasklist;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +21,7 @@ class TasklistController extends Controller
      */
     public function index()
     {
-        return Tasklist::all();
+        return $this->tasklist->all();
     }
 
     /**
