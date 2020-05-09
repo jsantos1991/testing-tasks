@@ -78,7 +78,7 @@ class TasklistControllerTest extends TestCase
         $this->assertEquals($isEmpty, $tasklists->isEmpty());
     }
 
-    public function test_it_should_return_false_when_given_property_is_not_valid()
+    public function test_on_store_it_should_return_false_when_given_property_is_not_valid()
     {
         $requestMock = m::mock(Request::class)
             ->shouldReceive(
@@ -100,6 +100,30 @@ class TasklistControllerTest extends TestCase
         $wasSaved = $controller->store($requestMock);
 
         $this->assertFalse($wasSaved);
+    }
+
+    public function test_on_store_it_should_return_true_if_success()
+    {
+        $requestMock = m::mock(Request::class)
+            ->shouldReceive(
+                [
+                    'get' => 123
+                ]
+            )
+            ->getMock();
+
+        $tasklistMock = m::mock(TasklistRepository::class)
+            ->shouldReceive(
+                [
+                    'save' => true
+                ]
+            )
+            ->getMock();
+
+        $controller = new TasklistController($tasklistMock);
+        $wasSaved = $controller->store($requestMock);
+
+        $this->assertTrue($wasSaved);
     }
 
     public function test_on_show_it_should_return_false_when_given_id_that_does_not_exist()
@@ -170,6 +194,78 @@ class TasklistControllerTest extends TestCase
         $response = $controller->update($request, 1);
 
         $this->assertFalse($response);
+    }
+
+    public function test_on_update_it_should_return_true_if_update_succeeds()
+    {
+        $tasklist = m::mock(TasklistRepository::class)
+            ->shouldReceive(
+                [
+                    'find' => new Tasklist(),
+                    'save' => true
+                ]
+            )->getMock();
+
+        $request = m::mock(Request::class)
+            ->shouldReceive(
+                [
+                    'get' => 'Test Name'
+                ]
+            )->getMock();
+
+        $controller = new TasklistController($tasklist);
+        $response = $controller->update($request, 1);
+
+        $this->assertTrue($response);
+    }
+
+    public function test_on_destroy_it_should_fail_when_given_id_does_not_exist()
+    {
+        $tasklist = m::mock(TasklistRepository::class)
+            ->shouldReceive(
+                [
+                    'find' => null
+                ]
+            )->getMock();
+
+        $controller = new TasklistController($tasklist);
+        $response = $controller->destroy(0);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(false, $response->getContent());
+    }
+
+    public function test_on_destroy_it_should_return_false_when_delete_fails()
+    {
+        $tasklistRepository = m::mock(TasklistRepository::class)
+            ->shouldReceive(
+                [
+                    'find' => new Tasklist(),
+                    'delete' => false
+                ]
+            )->getMock();
+
+        $controller = new TasklistController($tasklistRepository);
+        $response = $controller->destroy(1);
+
+        $this->assertFalse($response);
+    }
+
+    public function test_on_destroy_it_should_return_true_if_delete_succeeds()
+    {
+        $tasklistRepository = m::mock(TasklistRepository::class)
+            ->shouldReceive(
+                [
+                    'find' => new Tasklist(),
+                    'delete' => true
+                ]
+            )->getMock();
+
+        $controller = new TasklistController($tasklistRepository);
+        $response = $controller->destroy(1);
+
+        $this->assertTrue($response);
     }
 
     protected function tearDown(): void

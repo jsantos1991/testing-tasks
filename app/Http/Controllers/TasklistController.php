@@ -55,7 +55,7 @@ class TasklistController extends Controller
         $tasklist = $this->tasklistRepository->find($id);
 
         if ($tasklist) {
-            return $tasklist->delete();
+            return $this->tasklistRepository->delete($tasklist);
         }
 
         return new Response(false, 404);
