@@ -4,17 +4,17 @@
 namespace App\Repositories;
 
 
-use App\Tasklist;
+use App\Task;
 use Illuminate\Support\Collection;
 
-class TasklistRepository
+class TaskRepository
 {
     /**
-     * @var Tasklist
+     * @var Task
      */
     private $model;
 
-    public function __construct(Tasklist $model)
+    public function __construct(Task $model)
     {
         $this->model = $model;
     }
@@ -36,8 +36,15 @@ class TasklistRepository
         return $model->delete($id);
     }
 
-    public function save(Tasklist $tasklist): bool
+    public function save(Task $task): bool
     {
-        return $tasklist->save();
+        return $task->save();
+    }
+
+    public function whereTasklistId($id)
+    {
+        return $this->model
+            ->where('tasklist_id', $id)
+            ->get();
     }
 }

@@ -13,7 +13,7 @@ class TasklistControllerTest extends TestCase
 
     public function test_index_should_return_an_empty_collection_if_there_are_no_tasklist()
     {
-        $response = $this->get('/api/tasklists');
+        $response = $this->get('/api/v1/tasklists');
 
         $response->assertOk();
         $this->assertEmpty(json_decode($response->getContent()));
@@ -27,7 +27,7 @@ class TasklistControllerTest extends TestCase
         $tasklist->save();
 
         // When we try to get the existing tasklists.
-        $response = $this->get('/api/tasklists');
+        $response = $this->get('/api/v1/tasklists');
 
         $data = json_decode($response->getContent());
 

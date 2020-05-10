@@ -2,83 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\TaskRepository;
+use App\Tasklist;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class TaskController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @var TaskRepository $taskRepository
      */
-    public function index()
+    protected $taskRepository;
+
+    public function __construct(TaskRepository $taskRepository)
     {
-        return 'Hello';
+        $this->taskRepository = $taskRepository;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function all(Tasklist $tasklist)
     {
-        //
+        return $this->taskRepository->whereTasklistId($tasklist->id);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function create(Request $request)
     {
-        //
+        $tasklist = new Tasklist();
+        $tasklist->name = $request->get('name');
+        return $this->taskRepository->save($tasklist);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
-        //
+        return $this->taskRepository->find($id);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //
+        $tasklist = $this->taskRepository->find($id);
+
+        if ($tasklist) {
+            $tasklist->name = $request->get('name');
+            return $this->taskRepository->save($tasklist);
+        }
+
+        return new Response(false, 404);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function delete($id)
     {
-        //
+        $tasklist = $this->taskRepository->find($id);
+
+        if ($tasklist) {
+            return $this->taskRepository->delete($id);
+        }
+
+        return new Response(false, 404);
     }
 }

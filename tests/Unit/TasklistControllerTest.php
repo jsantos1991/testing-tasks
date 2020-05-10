@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Http\Controllers\TasklistController;
+use App\Task;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -28,7 +29,7 @@ class TasklistControllerTest extends TestCase
 
 
         $controller = new TasklistController($mock);
-        $tasklists = $controller->index();
+        $tasklists = $controller->all();
         $this->assertInstanceOf(Collection::class, $tasklists);
         $this->assertTrue($tasklists->isEmpty());
     }
@@ -49,7 +50,7 @@ class TasklistControllerTest extends TestCase
 
         $controller = new TasklistController($mock);
         /** @var Collection $tasklists */
-        $tasklists = $controller->index();
+        $tasklists = $controller->all();
         $this->assertInstanceOf(Collection::class, $tasklists);
         $this->assertTrue($tasklists->count() > 0);
         $this->assertInstanceOf(Tasklist::class, $tasklists->first());
@@ -72,7 +73,7 @@ class TasklistControllerTest extends TestCase
 
         $controller = new TasklistController($mock);
         /** @var Collection $tasklists */
-        $tasklists = $controller->index();
+        $tasklists = $controller->all();
 
         $this->assertInstanceOf(Collection::class, $tasklists);
         $this->assertEquals($isEmpty, $tasklists->isEmpty());
@@ -97,7 +98,7 @@ class TasklistControllerTest extends TestCase
             ->getMock();
 
         $controller = new TasklistController($tasklistMock);
-        $wasSaved = $controller->store($requestMock);
+        $wasSaved = $controller->create($requestMock);
 
         $this->assertFalse($wasSaved);
     }
@@ -121,7 +122,7 @@ class TasklistControllerTest extends TestCase
             ->getMock();
 
         $controller = new TasklistController($tasklistMock);
-        $wasSaved = $controller->store($requestMock);
+        $wasSaved = $controller->create($requestMock);
 
         $this->assertTrue($wasSaved);
     }
@@ -229,7 +230,7 @@ class TasklistControllerTest extends TestCase
             )->getMock();
 
         $controller = new TasklistController($tasklist);
-        $response = $controller->destroy(0);
+        $response = $controller->delete(0);
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(404, $response->getStatusCode());
@@ -247,7 +248,7 @@ class TasklistControllerTest extends TestCase
             )->getMock();
 
         $controller = new TasklistController($tasklistRepository);
-        $response = $controller->destroy(1);
+        $response = $controller->delete(1);
 
         $this->assertFalse($response);
     }
@@ -263,9 +264,34 @@ class TasklistControllerTest extends TestCase
             )->getMock();
 
         $controller = new TasklistController($tasklistRepository);
-        $response = $controller->destroy(1);
+        $response = $controller->delete(1);
 
         $this->assertTrue($response);
+    }
+
+    public function test_it_should_return_nothing_when_there_are_no_tasks_for_the_given_tasklist()
+    {
+        $tasklist = m::mock(Tasklist::class)
+            ->shouldReceive(['getAttribute' => null])
+            ->getMock();
+
+        $controller = new TasklistController(new TasklistRepository(new Tasklist()));
+        $response = $controller->tasks($tasklist);
+
+        $this->assertEmpty($response);
+    }
+
+    public function test_it_should_return_all_tasks_of_the_given_tasklist()
+    {
+        $tasklist = m::mock(Tasklist::class)
+            ->shouldReceive(['getAttribute' => (new Collection())->push(new Task())])
+            ->getMock();
+
+        $controller = new TasklistController(new TasklistRepository(new Tasklist()));
+        $response = $controller->tasks($tasklist);
+
+        $this->assertNotEmpty($response);
+        $this->assertInstanceOf(Task::class, $response->first());
     }
 
     protected function tearDown(): void

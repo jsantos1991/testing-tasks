@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tasklist extends Model
 {
-    public function task()
+    public function tasks()
     {
         return $this->hasMany(Task::class);
     }

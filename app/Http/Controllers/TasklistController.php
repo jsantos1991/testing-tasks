@@ -9,7 +9,6 @@ use Illuminate\Http\Response;
 
 class TasklistController extends Controller
 {
-
     /**
      * @var TasklistRepository $tasklistRepository
      */
@@ -20,12 +19,12 @@ class TasklistController extends Controller
         $this->tasklistRepository = $tasklistRepository;
     }
 
-    public function index()
+    public function all()
     {
         return $this->tasklistRepository->all();
     }
 
-    public function store(Request $request)
+    public function create(Request $request)
     {
         $tasklist = new Tasklist();
         $tasklist->name = $request->get('name');
@@ -36,7 +35,6 @@ class TasklistController extends Controller
     {
         return $this->tasklistRepository->find($id);
     }
-
 
     public function update(Request $request, $id)
     {
@@ -50,7 +48,7 @@ class TasklistController extends Controller
         return new Response(false, 404);
     }
 
-    public function destroy($id)
+    public function delete($id)
     {
         $tasklist = $this->tasklistRepository->find($id);
 
@@ -59,5 +57,10 @@ class TasklistController extends Controller
         }
 
         return new Response(false, 404);
+    }
+
+    public function tasks(Tasklist $tasklist)
+    {
+        return $tasklist->tasks;
     }
 }
