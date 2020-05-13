@@ -15,6 +15,8 @@ public function it_all_should_be_passing()
 composer install
 
 composer test
+// or
+php artisan test
 ```
 
 ## 😎 People
